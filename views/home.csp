@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <link rel="shortcut icon" href="/static/favicon.ico">
+
+    <title>tron online sign and transfer</title>
+    <style>
+        input{
+            height: 30px;
+        }
+        select{
+            height: 30px;
+            font-size: 25px;
+        }
+        label{
+            font-size: 30px;
+        }
+        button{
+            height: 30px;
+            font-size: 20px;
+        }
+
+        span{
+            font-size: 30px;
+        }
+        p{
+            font-size: 30px;
+        }
+        a{
+            font-size: 30px;
+        }
+    </style>
+</head>
+<script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+<body>
+
+<div>
+
+    <span>TRON transaction signature and transfer</span>
+</div>
+
+<div style="	border-style:solid;
+	border-width:5px;display:inline-block;margin-top: 10px">
+    <form id="sign">
+        <span>tron online sign</span>
+        <br />
+        <label> key <input autocomplete="on" name="key" type="text" maxlength="64" size="64" placeholder="hex key" /> </label>
+        <br />
+        <label> json <textarea  placeholder="create transaction json result" name="json" style="width: 500px;height: 100px"></textarea> </label>
+        <br />
+        <label> type <select name="type"> <option value="1">trx</option> <option value="2">usdt</option> </select> </label>
+        <br />
+        <button type="button" onclick="sign()">submit</button>
+    </form>
+</div>
+<br />
+<div style="	border-style:solid;
+	border-width:5px;display:inline-block;margin-top: 10px">
+    <form id="transfer">
+        <span>tron online transfer network shasta</span>
+        <br />
+        <label> key <input autocomplete="on" type="text" name="key" maxlength="64" size="64" placeholder="hex key" /> </label>
+        <br />
+        <label> toAddress <input autocomplete="on" name="toaddress" type="text" maxlength="34" size="34" placeholder="base58 address" /> </label>
+        <br />
+        <label> amount <input autocomplete="on" name="amount" type="number" value="1000000" /> </label>
+        <br />
+        <label> type <select name="type"> <option value="1">trx</option> <option value="2">usdt</option> </select> </label>
+        <br />
+        <button type="button" onclick="transfer()">submit</button>
+    </form>
+</div>
+
+
+
+
+<div>
+    <div style="	border-style:solid;
+	border-width:5px;display:inline-block;margin-top: 10px">
+        <span>Result</span>
+        <br />
+        <label>
+            <textarea  id="res" style="width: 587px;height: 200px"></textarea>
+        </label>
+    </div>
+</div>
+
+<span>5000 free APIs per day (now free <span>[[count]]</span>)</span>
+<br>
+<span>Server start Time: [[start_time]]<span>
+<div>
+    <a href="https://t.me/shina_jin1">telegram</a>
+    <a href="https://github.com/kotlin711">github</a>
+    <a href="/swagger-ui/index.html">api doc</a>
+</div>
+</body>
+<script>
+    var getParamsAsObject = function (query) {
+
+        query = query.substring(query.indexOf('?') + 1);
+
+        var re = /([^&=]+)=?([^&]*)/g;
+        var decodeRE = /\+/g;
+
+        var decode = function (str) {
+            return decodeURIComponent(str.replace(decodeRE, " "));
+        };
+
+        var params = {}, e;
+        while (e = re.exec(query)) {
+            var k = decode(e[1]), v = decode(e[2]);
+            if (k.substring(k.length - 2) === '[]') {
+                k = k.substring(0, k.length - 2);
+                (params[k] || (params[k] = [])).push(v);
+            }
+            else params[k] = v;
+        }
+
+        var assign = function (obj, keyPath, value) {
+            var lastKeyIndex = keyPath.length - 1;
+            for (var i = 0; i < lastKeyIndex; ++i) {
+                var key = keyPath[i];
+                if (!(key in obj))
+                    obj[key] = {}
+                obj = obj[key];
+            }
+            obj[keyPath[lastKeyIndex]] = value;
+        }
+
+        for (var prop in params) {
+            var structure = prop.split('[');
+            if (structure.length > 1) {
+                var levels = [];
+                structure.forEach(function (item, i) {
+                    var key = item.replace(/[?[\]\\ ]/g, '');
+                    levels.push(key);
+                });
+                assign(params, levels, params[prop]);
+                delete(params[prop]);
+            }
+        }
+        return params;
+    };
+    function sign(){
+        const url = $("#sign").serialize();
+       const data =getParamsAsObject(url);
+        data['json']=window.btoa(data['json'])
+        $.get("/api/sign",data,res=>{
+            $("#res").text(res.data)
+        })
+    }
+
+    function transfer(){
+        const url = $("#transfer").serialize();
+        const data =getParamsAsObject(url);
+        $.get("/api/transfer",data,res=>{
+            $("#res").text(res)
+        })
+    }
+
+
+
+</script>
+</html>
